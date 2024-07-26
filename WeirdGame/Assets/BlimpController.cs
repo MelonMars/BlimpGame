@@ -78,9 +78,10 @@ public class BlimpController : MonoBehaviour
             else if (rotationSpeed < -maxRotationSpeed)
             {
                 rotationSpeed = -maxRotationSpeed;
-            this.transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
-            rb.velocity = transform.forward * speed;
-            rb.velocity += new Vector3(0, (privateLift-weight) * Time.deltaTime, 0);
+            }
         }
+        this.transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
+        rb.velocity = transform.forward * speed;
+        rb.velocity += new Vector3(0, (privateLift - weight) * Time.deltaTime, 0);
     }
 }
