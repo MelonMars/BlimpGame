@@ -4,18 +4,31 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public float rotationSpeed = 10.0f;
-    public Transform target;
-    public string vertMove = "C";
-    public string freeMove = ".";
+    public Transform target; 
+    public float distance = 10.0f;
+    public float rotationSpeed = 5.0f;
+    public float minDistance = 1f;
+    public float maxDistance = 30f;
+    public float zoomSpeed = 30f;
+    private float currentX = 0.0f;
 
-    // Update is called once per frame
+    void Start()
+    {
+        Vector3 direction = new Vector3(0, 0, -distance);
+        Quaternion rotation = Quaternion.Euler(0, currentX, 0);
+        transform.position = target.position + rotation * direction;
+        transform.LookAt(target.position);
+    }
+
     void Update()
     {
-        transform.RotateAround(target.position, transform.up, -Input.GetAxis("Mouse X") * rotationSpeed);
-        if (Input.GetKeyDown((KeyCode)System.Enum.Parse(typeof(KeyCode), vertMove, true)))
-        {
-            transform.RotateAround(target.position, transform.right, -Input.GetAxis("Mouse Y") * rotationSpeed);
-        }
+        currentX += Input.GetAxis("Mouse X") * rotationSpeed;
+        distance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+        distance = Mathf.Clamp(distance, minDistance, maxDistance);
+
+        Vector3 direction = new Vector3(0, 0, -distance);
+        Quaternion rotation = Quaternion.Euler(0, currentX, 0);
+        transform.position = target.position + rotation * direction;
+        transform.LookAt(target.position);
     }
 }

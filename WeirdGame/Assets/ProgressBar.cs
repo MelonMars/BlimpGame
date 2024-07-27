@@ -8,17 +8,31 @@ public class ProgressBar : MonoBehaviour
 {
 
     private Image progress;
-    public float current;
-    public float max;
+    private float current;
+    private float max;
+    public GameObject blimp;
+    private BlimpController blimpController;
     
     void Start()
     {
         progress = this.GetComponent<Image>();
+        blimpController = blimp.GetComponent<BlimpController>();
+        max = blimpController.topSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        current = blimpController.speed;
+        if (current / max > 0.7 && current/max < 0.95) {
+            progress.color = Color.yellow;
+        } else if (current / max > 0.95)
+        {
+            progress.color = Color.red;
+        } else
+        {
+            progress.color = Color.green;
+        }
         progress.fillAmount = current / max;
     }
 }

@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class RudderController : MonoBehaviour
 {
-    public float rotationSpeed = 10f;
-    public float minRotationAngle = -90f;
-    public float maxRotationAngle = 90f;
 
-    private float currentRotationSpeed;
-    private BlimpController blimpController;
+    public float rotateSpeed = 30f;
+    public float maxRotation = 45f;
+    private float currentRotation = 0f;
 
-    private void Start()
-    {
-        blimpController = transform.parent.GetComponent<BlimpController>();
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        currentRotationSpeed = Mathf.Lerp(currentRotationSpeed, blimpController.rotationSpeed, Time.deltaTime);
-        currentRotationSpeed = Mathf.Clamp(currentRotationSpeed, minRotationAngle, maxRotationAngle);
-        Quaternion targetRotation = Quaternion.Euler(0f, currentRotationSpeed, 0f);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime);
+        float rotationInput = 0f;
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            rotationInput += 1f;
+        } else if (Input.GetAxis("Horizontal") < 0) {
+            rotationInput -= 1f;
+        }
+        currentRotation += rotationInput * rotateSpeed * Time.deltaTime;
+        currentRotation = Mathf.Clamp(currentRotation, -maxRotation, maxRotation);
+        transform.localRotation = Quaternion.Euler(0f, currentRotation, 0f);
+        if (Input.GetAxis("Horizontal") == 0) {
+            transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        }
     }
 }
+

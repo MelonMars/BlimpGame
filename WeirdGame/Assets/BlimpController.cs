@@ -16,17 +16,22 @@ public class BlimpController : MonoBehaviour
     public float weight = 5f;
     [Range(0, 360)]
     public float maxRotationSpeed;
+    [Range(0, 100)]
+    public float maxStamina = 10f;
 
-    [SerializeField]
-    private float speed;
+
+
+    public float speed;
     public float rotationSpeed;
     [SerializeField]
     private float privateLift;
-
+    [SerializeField]
+    public float privateStamina;
     private Rigidbody rb;
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        privateStamina = maxStamina;
     }
 
     // Update is called once per frame
@@ -70,15 +75,20 @@ public class BlimpController : MonoBehaviour
             {
                 rotationSpeed += speed;
             }
-            if (rotationSpeed > maxRotationSpeed)
-            {
-                rotationSpeed = maxRotationSpeed;
-            }
-            else if (rotationSpeed < -maxRotationSpeed)
-            {
-                rotationSpeed = -maxRotationSpeed;
-            }
         }
+        if (speed == topSpeed)
+        {
+            privateStamina -= 1 * Time.deltaTime;
+            if (privateStamina <= 0)
+            {
+                speed -= 1;
+            }
+        } else
+        {
+            privateStamina += 1 * Time.deltaTime;
+        }
+        privateStamina = Mathf.Clamp(privateStamina, 0, maxStamina);
+        rotationSpeed = Mathf.Clamp(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);
         this.transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
         rb.velocity = transform.forward * speed;
         rb.velocity += new Vector3(0, (privateLift - weight) * Time.deltaTime, 0);
