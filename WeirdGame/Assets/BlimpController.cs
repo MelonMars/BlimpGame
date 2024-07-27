@@ -19,8 +19,7 @@ public class BlimpController : MonoBehaviour
 
     [SerializeField]
     private float speed;
-    [SerializeField]
-    private float rotationSpeed;
+    public float rotationSpeed;
     [SerializeField]
     private float privateLift;
 
