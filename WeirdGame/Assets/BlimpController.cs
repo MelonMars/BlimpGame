@@ -37,6 +37,7 @@ public class BlimpController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Handle speed changes based on vertical input
         if (Input.GetAxis("Vertical") > 0)
         {
             speed += 1 * Time.deltaTime * acceleration;
@@ -45,11 +46,12 @@ public class BlimpController : MonoBehaviour
         {
             speed -= 1 * Time.deltaTime * acceleration;
         }
-        if (speed > topSpeed)
-        {
-            speed = topSpeed;
-        }
-        else if (speed < stallSpeed)
+
+        // Clamp speed within limits
+        speed = Mathf.Clamp(speed, stallSpeed, topSpeed);
+
+        // Handle lift based on speed
+        if (speed < stallSpeed)
         {
             privateLift = 0;
         }
@@ -57,6 +59,8 @@ public class BlimpController : MonoBehaviour
         {
             privateLift = mainLift;
         }
+
+        // Handle rotation based on horizontal input
         if (Input.GetAxis("Horizontal") > 0)
         {
             rotationSpeed += speed * Time.deltaTime;
@@ -69,13 +73,18 @@ public class BlimpController : MonoBehaviour
         {
             if (rotationSpeed > 0)
             {
-                rotationSpeed -= speed;
+                rotationSpeed -= speed * Time.deltaTime;
             }
             else if (rotationSpeed < 0)
             {
-                rotationSpeed += speed;
+                rotationSpeed += speed * Time.deltaTime;
             }
         }
+
+        // Clamp rotation speed within limits
+        rotationSpeed = Mathf.Clamp(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);
+
+        // Handle stamina drain and regeneration
         if (speed == topSpeed)
         {
             privateStamina -= 1 * Time.deltaTime;
@@ -83,14 +92,30 @@ public class BlimpController : MonoBehaviour
             {
                 speed -= 1;
             }
-        } else
+        }
+        else
         {
             privateStamina += 1 * Time.deltaTime;
         }
+
+        // Ensure stamina stays within limits
         privateStamina = Mathf.Clamp(privateStamina, 0, maxStamina);
-        rotationSpeed = Mathf.Clamp(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);
-        this.transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
-        rb.velocity = transform.forward * speed;
-        rb.velocity += new Vector3(0, (privateLift - weight) * Time.deltaTime, 0);
+
+        // Handle vertical lift when space key is pressed
+        if (Input.GetKeyDown(KeyCode.Space) && privateLift > 0)
+        {
+            privateLift = 15;
+        }
+
+        // Apply rotation to the blimp
+        transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
+
+        // Calculate new velocity
+        Vector3 newVelocity = transform.forward * speed;
+        newVelocity.y += (privateLift - weight) * Time.deltaTime;
+
+        // Apply the new velocity to the Rigidbody
+        rb.velocity = newVelocity;
     }
+
 }
