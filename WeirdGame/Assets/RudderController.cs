@@ -20,9 +20,9 @@ public class RudderController : MonoBehaviour
         }
         currentRotation += rotationInput * rotateSpeed * Time.deltaTime;
         currentRotation = Mathf.Clamp(currentRotation, -maxRotation, maxRotation);
-        transform.localRotation = Quaternion.Euler(0f, currentRotation, 0f);
+        transform.localRotation = Quaternion.Euler(-90, currentRotation, 0f);
         if (Input.GetAxis("Horizontal") == 0) {
-            transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+            transform.localRotation = Quaternion.Euler(-90, 0f, 0f);
         }
     }
 }

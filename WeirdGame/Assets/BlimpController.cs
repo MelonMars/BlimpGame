@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class BlimpController : MonoBehaviour
@@ -19,8 +16,6 @@ public class BlimpController : MonoBehaviour
     [Range(0, 100)]
     public float maxStamina = 10f;
 
-
-
     public float speed;
     public float rotationSpeed;
     [SerializeField]
@@ -28,16 +23,15 @@ public class BlimpController : MonoBehaviour
     [SerializeField]
     public float privateStamina;
     private Rigidbody rb;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         privateStamina = maxStamina;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Handle speed changes based on vertical input
         if (Input.GetAxis("Vertical") > 0)
         {
             speed += 1 * Time.deltaTime * acceleration;
@@ -47,20 +41,17 @@ public class BlimpController : MonoBehaviour
             speed -= 1 * Time.deltaTime * acceleration;
         }
 
-        // Clamp speed within limits
-        speed = Mathf.Clamp(speed, stallSpeed, topSpeed);
+        speed = Mathf.Clamp(speed, 0, topSpeed);
 
-        // Handle lift based on speed
         if (speed < stallSpeed)
         {
-            privateLift = 0;
+            privateLift = -weight; 
         }
         else
         {
-            privateLift = mainLift;
+            privateLift = mainLift - weight;
         }
 
-        // Handle rotation based on horizontal input
         if (Input.GetAxis("Horizontal") > 0)
         {
             rotationSpeed += speed * Time.deltaTime;
@@ -71,20 +62,11 @@ public class BlimpController : MonoBehaviour
         }
         else if (Input.GetAxis("Horizontal") == 0)
         {
-            if (rotationSpeed > 0)
-            {
-                rotationSpeed -= speed * Time.deltaTime;
-            }
-            else if (rotationSpeed < 0)
-            {
-                rotationSpeed += speed * Time.deltaTime;
-            }
+            rotationSpeed = Mathf.Lerp(rotationSpeed, 0, Time.deltaTime * acceleration);
         }
 
-        // Clamp rotation speed within limits
         rotationSpeed = Mathf.Clamp(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);
 
-        // Handle stamina drain and regeneration
         if (speed == topSpeed)
         {
             privateStamina -= 1 * Time.deltaTime;
@@ -98,24 +80,26 @@ public class BlimpController : MonoBehaviour
             privateStamina += 1 * Time.deltaTime;
         }
 
-        // Ensure stamina stays within limits
         privateStamina = Mathf.Clamp(privateStamina, 0, maxStamina);
 
-        // Handle vertical lift when space key is pressed
-        if (Input.GetKeyDown(KeyCode.Space) && privateLift > 0)
-        {
-            privateLift = 15;
-        }
-
-        // Apply rotation to the blimp
         transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
 
-        // Calculate new velocity
         Vector3 newVelocity = transform.forward * speed;
-        newVelocity.y += (privateLift - weight) * Time.deltaTime;
 
-        // Apply the new velocity to the Rigidbody
+        if (Input.GetKey(KeyCode.Space) && privateStamina > 0)
+        {
+            newVelocity.y = privateLift + 15f;
+        }
+        else
+        {
+            newVelocity.y = privateLift; 
+        }
+
         rb.velocity = newVelocity;
-    }
 
+        Debug.Log("Speed: " + speed);
+        Debug.Log("Rotation Speed: " + rotationSpeed);
+        Debug.Log("Private Lift: " + privateLift);
+        Debug.Log("Velocity: " + newVelocity);
+    }
 }
